@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+// Prueba
 public class CardHand : MonoBehaviour
 {
     public List<GameObject> cards = new List<GameObject>();
