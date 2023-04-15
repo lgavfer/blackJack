@@ -109,6 +109,9 @@ public class Deck : MonoBehaviour
     void StartGame()
     {
 
+        // Creamos una varible que utilizaremos mas adelante para comprobar si se ha finalizado el juego
+        bool gameEnded = false;
+
         // Al principio se reparten dos cartas
         for (int i = 0; i < 2; i++)
         {
@@ -125,6 +128,12 @@ public class Deck : MonoBehaviour
                 // Damos el juego por terminado
                 gameEnded = true;
             }
+        }
+        // En caso de que no se haya obtenido BlackJack y el juego no haya terminado actualizamos los marcadores que indican la puntuación
+        if(!gameEnded) {
+            // Actualizamos en pantalla las puntuaciones de las cartas
+            Puntosplayer.text = player.GetComponent<CardHand>.points.ToString();
+            Puntosdealer.text = dealer.GetComponent<CardHand>.points.ToString();
         }
        
 
