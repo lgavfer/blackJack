@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
+
 
 public class Deck : MonoBehaviour
 {
@@ -14,6 +16,9 @@ public class Deck : MonoBehaviour
 
     public int[] values = new int[52];
     int cardIndex = 0;    
+
+    // Utilizamos esta lista en el metodo ShuffleCards() para almacenar el orden de las cartas
+    public List<int> cardOrders = new List<int>();
        
     private void Awake()
     {    
@@ -77,25 +82,45 @@ public class Deck : MonoBehaviour
         // El bucle termina cuando le hemos dado valor a las 52 cartas
     }
 
+    // Metodo para barajar las cartas automaticamente
     private void ShuffleCards()
     {
         /*TODO:
          * Barajar las cartas aleatoriamente.
-         * El método Random.Range(0,n), devuelve un valor entre 0 y n-1
+         * El metodo Random.Range(0,n), devuelve un valor entre 0 y n-1
          * Si lo necesitas, puedes definir nuevos arrays.
-         */       
+         */   
+
+        // El bucle se ejecuta 52 veces -> tenemos 52 cartas
+         for (int i = 0; i < 52; i++)
+        {
+            // Genera un número aleatorio entre el 0 y el 51 (tantos índices como cartas)
+            int randomNumber = Random.Range(0, 52);
+            // El ciclo "while" comprueba que el número no se ha seleccionado ya
+            while (cardOrders.Contains(randomNumber))
+            {
+                // En el caso de que se haya seleccionado -> sigue buscando hasta encontrar un índice que no se esté usando
+                randomNumber = Random.Range(0, 52);
+            }
+            cardOrders.Add(randomNumber);
+        }    
     }
 
     void StartGame()
     {
+
+        // Al principio se reparten dos cartas
         for (int i = 0; i < 2; i++)
         {
             PushPlayer();
             PushDealer();
+            
             /*TODO:
              * Si alguno de los dos obtiene Blackjack, termina el juego y mostramos mensaje
              */
         }
+       
+
     }
 
     private void CalculateProbabilities()
