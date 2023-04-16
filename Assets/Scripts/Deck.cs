@@ -8,6 +8,8 @@ public class Deck : MonoBehaviour
     public Sprite[] faces;
     public GameObject dealer;
     public GameObject player;
+    public Text Puntosplayer;
+    public Text Puntosdealer;
     public Button hitButton;
     public Button stickButton;
     public Button playAgainButton;
@@ -132,8 +134,8 @@ public class Deck : MonoBehaviour
         // En caso de que no se haya obtenido BlackJack y el juego no haya terminado actualizamos los marcadores que indican la puntuación
         if(!gameEnded) {
             // Actualizamos en pantalla las puntuaciones de las cartas
-            Puntosplayer.text = player.GetComponent<CardHand>.points.ToString();
-            Puntosdealer.text = dealer.GetComponent<CardHand>.points.ToString();
+            Puntosplayer.text = player.GetComponent<CardHand>().points.ToString();
+            Puntosdealer.text = dealer.GetComponent<CardHand>().points.ToString();
         }
        
 
@@ -148,6 +150,12 @@ public class Deck : MonoBehaviour
          * - Probabilidad de que el jugador obtenga más de 21 si pide una carta          
          */
 
+        // Lo dividimos en funciones porque CalculateProbabilities() no devuelve nada y utilizamos returns
+        masPuntosDeck();
+
+    }
+
+    public double masPuntosDeck() {
         // Declaramos e inicializamos variables
         int casosFavorables = 0; // Variable para almacenar el número de casos favorables encontrados
         int[] cartasMesa = new int[3]; // Array para almacenar las cartas de la mesa (2 del jugador y 1 del dealer)
@@ -206,10 +214,7 @@ public class Deck : MonoBehaviour
 
         // Mostramos en consola el número de casos favorables
         Debug.Log("Casos favorables Mas que dealer " + casosFavorables);
-
-        
-
-
+        return casosFavorables;
     }
 
     void PushDealer()
