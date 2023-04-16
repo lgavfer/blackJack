@@ -147,6 +147,69 @@ public class Deck : MonoBehaviour
          * - Probabilidad de que el jugador obtenga entre un 17 y un 21 si pide una carta
          * - Probabilidad de que el jugador obtenga más de 21 si pide una carta          
          */
+
+        // Declaramos e inicializamos variables
+        int casosFavorables = 0; // Variable para almacenar el número de casos favorables encontrados
+        int[] cartasMesa = new int[3]; // Array para almacenar las cartas de la mesa (2 del jugador y 1 del dealer)
+
+
+        // Primero calculamos la probabilidad de que el Dealer tenga más puntuación que el jugador 
+
+        // Obtenemos la puntuación del jugador y la carta oculta del dealer
+        int puntuacionJugador = player.GetComponent<CardHand>().points;
+        int cartaDealer = dealer.GetComponent<CardHand>().cards[1].GetComponent<CardModel>().value;
+
+        // Calculamos la diferencia entre la puntuación del jugador y la carta oculta del dealer
+        int diferencia = puntuacionJugador - cartaDealer;
+
+        // Almacenamos las cartas del jugador y la carta oculta del dealer en el array
+        cartasMesa[0] = player.GetComponent<CardHand>().cards[0].GetComponent<CardModel>().value;
+        cartasMesa[1] = player.GetComponent<CardHand>().cards[1].GetComponent<CardModel>().value;
+        cartasMesa[2] = cartaDealer;
+
+        // Si la diferencia es menor que cero, la probabilidad de que el dealer tenga más puntuación es cero
+        if (diferencia < 0)
+        {
+            probMessage.text = 0.ToString();
+            return 0;
+        }
+
+        
+
+        // Recorremos los valores posibles de puntuación del dealer, desde la diferencia hasta el 11 (valor máximo posible)
+        for (int i = diferencia + 1; i < 12; i++)
+        {
+            int contadorCartas = 0;
+
+            // Contamos las cartas en la mesa que tienen el mismo valor que la puntuación actual del dealer
+            if (i == cartasMesa[0])
+            {
+                contadorCartas++;
+            }
+            if (i == cartasMesa[1])
+            {
+                contadorCartas++;
+            }
+            if (i == cartasMesa[2])
+            {
+                contadorCartas++;
+            }
+
+            // Calculamos el número de casos favorables, dependiendo del valor actual del dealer
+            if (i != 10)
+                casosFavorables = casosFavorables + (4 - contadorCartas); // Cualquier carta que no sea un 10 tiene 4 naipes
+            if (i == 10)
+            {
+                casosFavorables = casosFavorables + (16 - contadorCartas); // Las cartas con valor de 10 (J,Q,K) tienen 16 naipes
+            }
+        }
+
+        // Mostramos en consola el número de casos favorables
+        Debug.Log("Casos favorables Mas que dealer " + casosFavorables);
+
+        
+
+
     }
 
     void PushDealer()
