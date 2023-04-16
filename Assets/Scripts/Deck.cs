@@ -213,7 +213,7 @@ public class Deck : MonoBehaviour
         }
 
         // Mostramos en consola el número de casos favorables
-        Debug.Log("Casos favorables Mas que dealer " + casosFavorables);
+        Debug.Log("Casos favorables de que el Dealer tenga más puntos:" + casosFavorables);
         return casosFavorables;
     }
 
