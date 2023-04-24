@@ -120,8 +120,8 @@ public class Deck : MonoBehaviour
         // Al principio se reparten dos cartas
         for (int i = 0; i < 2; i++)
         {   
-            PushDealer();
             PushPlayer();
+            PushDealer();
             
         }
 
@@ -141,8 +141,6 @@ public class Deck : MonoBehaviour
             // Actualizamos en pantalla las puntuaciones de las cartas del jugador
             Puntosplayer.text = "Player points: " + player.GetComponent<CardHand>().points.ToString();
         }
-
-       CalculateProbabilities();
 
     }
 
@@ -309,7 +307,7 @@ public class Deck : MonoBehaviour
          */
         player.GetComponent<CardHand>().Push(faces[cardOrders[cardIndex]], values[cardOrders[cardIndex]]);
         cardIndex++;
-        //CalculateProbabilities();
+    
     }       
 
     public void Hit()
@@ -342,17 +340,7 @@ public class Deck : MonoBehaviour
     }
 
     public void Stand()
-    {
-        /*TODO: 
-         * Si estamos en la mano inicial, debemos voltear la primera carta del dealer.
-         */
-
-        /*TODO:
-         * Repartimos cartas al dealer si tiene 16 puntos o menos
-         * El dealer se planta al obtener 17 puntos o más
-         * Mostramos el mensaje del que ha ganado
-         */   
-
+    {  
         // Primero le damos la vuelta a la carta del Dealer
         dealer.GetComponent<CardHand>().cards[0].GetComponent<CardModel>().ToggleFace(true);      
 
