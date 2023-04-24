@@ -94,7 +94,7 @@ public class Deck : MonoBehaviour
          * El metodo Random.Range(0,n), devuelve un valor entre 0 y n-1
          * Si lo necesitas, puedes definir nuevos arrays.
          */   
-
+        cardOrders.Clear();
         // El bucle se ejecuta 52 veces -> tenemos 52 cartas
          for (int i = 0; i < 52; i++)
         {
@@ -119,8 +119,11 @@ public class Deck : MonoBehaviour
         // Al principio se reparten dos cartas
         for (int i = 0; i < 2; i++)
         {
-            PushPlayer();
+             
             PushDealer();
+
+            PushPlayer();
+           
             
         }
 
@@ -140,7 +143,7 @@ public class Deck : MonoBehaviour
             // Actualizamos en pantalla las puntuaciones de las cartas del jugador
             Puntosplayer.text = "Player points: " + player.GetComponent<CardHand>().points.ToString();
         }
-       
+       CalculateProbabilities();
 
     }
 
@@ -153,7 +156,7 @@ public class Deck : MonoBehaviour
          * - Probabilidad de que el jugador obtenga más de 21 si pide una carta          
          */
 
-        // Lo dividimos en funciones porque CalculateProbabilities() no devuelve nada y utilizamos returns
+        // Dividimos la función en tres para organizarlo
         masPuntosDealer();
 
     }
@@ -182,12 +185,11 @@ public class Deck : MonoBehaviour
         // Si la diferencia es menor que cero, la probabilidad de que el dealer tenga más puntuación es cero
         if (diferencia < 0)
         {
-            probMessage.text = 0.ToString();
+            probMessage.text = "0";
             return 0;
         }
 
         
-
         // Recorremos los valores posibles de puntuación del dealer, desde la diferencia hasta el 11 (valor máximo posible)
         for (int i = diferencia + 1; i < 12; i++)
         {
@@ -217,14 +219,16 @@ public class Deck : MonoBehaviour
         }
 
         // Mostramos en consola el número de casos favorables
-        Debug.Log("Casos favorables de que el Dealer tenga más puntos:" + casosFavorables);
+        Debug.Log("Casos favorables: " + casosFavorables);
 
         // Calculamos la probabilidad
-        float probabilidad = casosFavorables / 49;
+        double probabilidad = 0;
+        probabilidad = casosFavorables / 49;
+        Debug.Log(probabilidad);
         probabilidad = 1 - probabilidad;
         probabilidad = probabilidad *100;
         probMessage.text = probabilidad.ToString();
-
+        Debug.Log(probabilidad);
         return probabilidad;
     } 
 
@@ -242,7 +246,7 @@ public class Deck : MonoBehaviour
         /*TODO:
          * Dependiendo de cómo se implemente ShuffleCards, es posible que haya que cambiar el índice.
          */
-        player.GetComponent<CardHand>().Push(faces[cardIndex], values[cardOrders[cardIndex]]);
+        player.GetComponent<CardHand>().Push(faces[cardOrders[cardIndex]], values[cardOrders[cardIndex]]);
         cardIndex++;
         //CalculateProbabilities();
     }       
@@ -335,6 +339,7 @@ public class Deck : MonoBehaviour
 
 
         Debug.Log("Play Again");
+
         if(stickButton.interactable == false ){
             stickButton.interactable = true;
         }
@@ -350,17 +355,9 @@ public class Deck : MonoBehaviour
         
         finalMessage.text = "";
 
-        // ShuffleCards();
-        
-/*
-        hitButton.interactable = true;
-        stickButton.interactable = true;
-        finalMessage.text = "";
-        player.GetComponent<CardHand>().Clear();
-        dealer.GetComponent<CardHand>().Clear();          
-        cardIndex = 0;
+        cardOrders.Clear();
         ShuffleCards();
-        StartGame(); */
+        StartGame();
     }
     
 }
