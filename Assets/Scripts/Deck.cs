@@ -31,7 +31,8 @@ public class Deck : MonoBehaviour
     private void Start()
     {
         ShuffleCards();
-        StartGame();      
+        StartGame();     
+        CalculateProbabilities(); 
  
     }
 
@@ -118,12 +119,9 @@ public class Deck : MonoBehaviour
 
         // Al principio se reparten dos cartas
         for (int i = 0; i < 2; i++)
-        {
-             
+        {   
             PushDealer();
-
             PushPlayer();
-           
             
         }
 
@@ -143,6 +141,7 @@ public class Deck : MonoBehaviour
             // Actualizamos en pantalla las puntuaciones de las cartas del jugador
             Puntosplayer.text = "Player points: " + player.GetComponent<CardHand>().points.ToString();
         }
+
        CalculateProbabilities();
 
     }
@@ -157,7 +156,11 @@ public class Deck : MonoBehaviour
          */
 
         // Dividimos la función en tres para organizarlo
-        masPuntosDealer();
+        double probabilidadDealerMasPuntuacion = masPuntosDealer();
+        double probabilidadJugadorEntreValores = jugadorEntreValores();
+
+        // Actualizamos la pantalla
+        probMessage.text = "Dealer > Player: " + probabilidadDealerMasPuntuacion + "%" + "\n" + "17<Player<21 : " + probabilidadJugadorEntreValores + "%" + "\n";
 
     }
 
@@ -167,32 +170,33 @@ public class Deck : MonoBehaviour
         int casosFavorables = 0; // Variable para almacenar el número de casos favorables encontrados
         int[] cartasMesa = new int[3]; // Array para almacenar las cartas de la mesa (2 del jugador y 1 del dealer)
 
-
         // Primero calculamos la probabilidad de que el Dealer tenga más puntuación que el jugador 
 
-        // Obtenemos la puntuación del jugador y la carta oculta del dealer
+        // Obtenemos la puntuación del jugador y la carta del dealer
         int puntuacionJugador = player.GetComponent<CardHand>().points;
         int cartaDealer = dealer.GetComponent<CardHand>().cards[1].GetComponent<CardModel>().value;
 
-        // Calculamos la diferencia entre la puntuación del jugador y la carta oculta del dealer
+        // Calculamos la diferencia entre la puntuación del jugador y la carta del dealer
         int diferencia = puntuacionJugador - cartaDealer;
 
-        // Almacenamos las cartas del jugador y la carta oculta del dealer en el array
+        // Almacenamos las cartas del jugador y la carta del dealer en el array
         cartasMesa[0] = player.GetComponent<CardHand>().cards[0].GetComponent<CardModel>().value;
         cartasMesa[1] = player.GetComponent<CardHand>().cards[1].GetComponent<CardModel>().value;
         cartasMesa[2] = cartaDealer;
 
-        // Si la diferencia es menor que cero, la probabilidad de que el dealer tenga más puntuación es cero
+        // Si la diferencia es menor que cero, la probabilidad de que el dealer tenga más puntuación es cero -> si yo saco otra carta, 100% que el jugador
+        // va a tener más puntuación que el Dealer, entonces tiene un 0 de tener más puntos
         if (diferencia < 0)
         {
-            probMessage.text = "0";
             return 0;
-        }
+        } 
 
-        
         // Recorremos los valores posibles de puntuación del dealer, desde la diferencia hasta el 11 (valor máximo posible)
+        // Si yo tengo 12 puntos y él tiene 7 -> la carta oculta tendrá que ser un 5 o mayor
         for (int i = diferencia + 1; i < 12; i++)
-        {
+        {   
+            // Indica la cantidad de veces que ya ha salido el número con el que estamos trabajando ahora. 
+            // Ej: si el 5 ha salido ya dos veces en la baraja, solo podrá salir dos veces más
             int contadorCartas = 0;
 
             // Contamos las cartas en la mesa que tienen el mismo valor que la puntuación actual del dealer
@@ -208,29 +212,86 @@ public class Deck : MonoBehaviour
             {
                 contadorCartas++;
             }
-
+        
             // Calculamos el número de casos favorables, dependiendo del valor actual del dealer
-            if (i != 10)
+            if (i != 10) {
                 casosFavorables = casosFavorables + (4 - contadorCartas); // Cualquier carta que no sea un 10 tiene 4 naipes
+            }
             if (i == 10)
             {
                 casosFavorables = casosFavorables + (16 - contadorCartas); // Las cartas con valor de 10 (J,Q,K) tienen 16 naipes
             }
         }
 
-        // Mostramos en consola el número de casos favorables
-        Debug.Log("Casos favorables: " + casosFavorables);
-
         // Calculamos la probabilidad
         double probabilidad = 0;
-        probabilidad = casosFavorables / 49;
-        Debug.Log(probabilidad);
+        probabilidad = (double)casosFavorables/49;
         probabilidad = 1 - probabilidad;
         probabilidad = probabilidad *100;
-        probMessage.text = probabilidad.ToString();
-        Debug.Log(probabilidad);
         return probabilidad;
     } 
+
+    public double jugadorEntreValores() {
+        // Función para calcular la probabilidad de que el jugador obtenga entre un 17 y un 21
+        int casosFavorables = 0;
+
+        int puntosJugador = player.GetComponent<CardHand>().points;
+        // Obtenemos el número de cartas que tiene el Player
+        int cartasPlayer = player.GetComponent<CardHand>().cards.Count;
+
+        // Creamos un array para recoger las cartas que ya hay en la mesa
+        int[] cartasMesa = new int[cartasPlayer];
+
+        for (int i = 0; i < cartasPlayer; i++)
+        {
+            // Añadimos en la lista auxiliar que hemos creado, el valor de cada carta que haya en la mesa
+            cartasMesa[i] = player.GetComponent<CardHand>().cards[i].GetComponent<CardModel>().value;
+        }
+
+        int cartaMinima = 17 - puntosJugador;
+        int cartaMaxima = 21 - puntosJugador;
+
+        if (cartaMinima <= 0)
+        {
+            cartaMinima = 1;
+        }
+
+        // Ya estoy dentro del rango -> no puedo sacar una carta mayor
+        if (cartaMaxima <= 0)
+        {
+            return 0;
+        }
+
+        // Puedo sacar cualquier carta, que estaré en el rango
+        if (cartaMinima >= 11)
+        {
+            return 100;
+        }
+
+        for (int i = cartaMinima; i < cartaMaxima + 1; i++)
+        {
+            int contador = 0;
+            for (int j = 0; j < cartasMesa.Length; j++)
+            {
+                if (i == cartasMesa[j])
+                {
+                    contador++;
+                }
+            }
+            if (i != 10)
+            {
+                casosFavorables += (4 - contador);
+            }
+            else
+            {
+                casosFavorables += (16 - contador);
+            }
+        }
+
+        double probabilidad = (double)casosFavorables / 49;
+        probabilidad = probabilidad * 100;
+        return probabilidad;
+    }
 
     void PushDealer()
     {
@@ -272,7 +333,11 @@ public class Deck : MonoBehaviour
             dealer.GetComponent<CardHand>().cards[0].GetComponent<CardModel>().ToggleFace(true);
             // Indicamos que ha perdido
             finalMessage.text = "Has perdido";
+            Puntosdealer.text = "Dealer Points: " + dealer.GetComponent<CardHand>().points.ToString();
+            
         }
+
+        CalculateProbabilities();
 
     }
 
@@ -331,12 +396,11 @@ public class Deck : MonoBehaviour
             stickButton.interactable = false;
         }
          
-         Debug.Log("Stand");
+        CalculateProbabilities();
     }
 
     public void PlayAgain()
     {
-
 
         Debug.Log("Play Again");
 
@@ -354,6 +418,7 @@ public class Deck : MonoBehaviour
         Debug.Log("Clear");
         
         finalMessage.text = "";
+        Puntosdealer.text = "Dealer Points: --";
 
         cardOrders.Clear();
         ShuffleCards();
